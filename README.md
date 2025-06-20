@@ -1,147 +1,117 @@
-/*
+const client = require('./main');
+require('./bot');
+require('./shiva');
 
-☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
-                                                 
-  _________ ___ ___ ._______   _________    
- /   _____//   |   \|   \   \ /   /  _  \   
- \_____  \/    ~    \   |\   Y   /  /_\  \  
- /        \    Y    /   | \     /    |    \ 
-/_______  /\___|_  /|___|  \___/\____|__  / 
-        \/       \/                     \/  
-                    
-DISCORD :  https://discord.com/invite/xQF9f9yUEM                   
-YouTube : https://www.youtube.com/@GlaceYT                         
+const loadEventHandlers = () => {
+    const colors = require('./UI/colors/colors');
 
-Command Verified : ✓  
-Website        : ssrr.tech  
-Test Passed    : ✓
+   
+    const logSystem = (system, status = '✅') => {
+        const timestamp = new Date().toLocaleTimeString();
+        console.log(
+            `${colors.gray}[${timestamp}]${colors.reset}`,
+            `${colors.cyan}[${system.padEnd(15)}]${colors.reset}`,
+            `${colors.green}${status}${colors.reset}`
+        );
+    };
 
-☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
-*/
+   
+    console.clear();
+    
+  
+    const currentDate = new Date().toISOString().replace('T', ' ').slice(0, 19);
+
+   
+    console.log('\n' + '═'.repeat(60));
+    console.log(`${colors.yellow}${colors.bright}             🤖 BOT SYSTEMS INITIALIZATION 🤖${colors.reset}`);
+    console.log('═'.repeat(60) + '\n');
+
+   
+    console.log(`\n${colors.magenta}${colors.bright}📡 CORE SYSTEMS${colors.reset}`);
+    console.log('─'.repeat(40));
 
 
-const cmdIcons = require('../../UI/icons/commandicons');
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder } = require('discord.js');
-const lang = require('../../events/loadLanguage');
+  
+    const ticketHandler = require('./events/ticketHandler');
+    ticketHandler(client);
+    logSystem('TICKET');
 
-module.exports = {
-  data: new SlashCommandBuilder()
-    .setName('bot')
-    .setDescription('Bot related commands.')
-    // Subcommand: ping
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('ping')
-        .setDescription(lang.pingDescription)
-    )
-    // Subcommand: invite
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('invite')
-        .setDescription(lang.inviteDescription)
-    )
-    // Subcommand: support
-    .addSubcommand(subcommand =>
-        subcommand
-            .setName('support')
-            .setDescription(lang.supportDescription)
-    ),
-  async execute(interaction) {
-    if (interaction.isCommand && interaction.isCommand()) {
-    const subcommand = interaction.options.getSubcommand();
+    const modmailHandler = require('./events/modmailHandler');
+    modmailHandler(client);
+    logSystem('MODMAIL');
 
-    if (subcommand === 'ping') {
-      const botLatency = Date.now() - interaction.createdTimestamp;
-      const apiLatency = interaction.client.ws.ping;
-      
-      const embed = new EmbedBuilder()
-        .setColor('#0099ff')
-        .setTitle(lang.pingTitle)
-        .setDescription(`${lang.botLatency}: ${botLatency}ms\n${lang.apiLatency}: ${apiLatency}ms`)
-        .setTimestamp();
-      
-      await interaction.reply({ embeds: [embed] });
-    }
-    else if (subcommand === 'support') {
-        const supportServerLink = lang.supportServerLink;
-        const githubLink = lang.githubLink;
-        const replitLink = lang.replitLink;
-        const youtubeLink = lang.youtubeLink;
+    const voiceChannelHandler = require('./events/voiceChannelHandler');
+    voiceChannelHandler(client);
+    logSystem('VOICE');
 
-        const embed = new EmbedBuilder()
-            .setColor('#b300ff')
-            .setAuthor({
-                name: lang.supportTitle,
-                iconURL: cmdIcons.rippleIcon,
-                url: supportServerLink
-            })
-            .setDescription(`
-                ➡️ **${lang.supportDescriptionTitle}:**
-                - ${lang.discord} - ${supportServerLink}
-                
-                ➡️ **${lang.followUsOn}:**
-                - ${lang.github} - ${githubLink}
-                - ${lang.replit} - ${replitLink}
-                - ${lang.youtube} - ${youtubeLink}
-            `)
-            .setImage(lang.supportImageURL)
-            .setTimestamp();
+    console.log(`\n${colors.magenta}${colors.bright}🎮 ENGAGEMENT SYSTEMS${colors.reset}`);
+    console.log('─'.repeat(40));
 
-        await interaction.reply({ embeds: [embed] });
-    }
-    else if (subcommand === 'invite') {
-      const clientId = interaction.client.user.id;
-      const adminPermissions = 8; 
-      
-     
-      const inviteURL = `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=${adminPermissions}&integration_type=0&scope=bot`;
-      
-      const embed = new EmbedBuilder()
-        .setColor('#0099ff')
-        .setAuthor({ 
-          name: lang.inviteTitle, 
-          iconURL: cmdIcons.rippleIcon,
-          url: "https://discord.gg/xQF9f9yUEM" 
-        })
-        .setDescription(lang.inviteDescription.replace('{inviteURL}', inviteURL))
-        .setTimestamp();
-      
-      await interaction.reply({ embeds: [embed] });
-    }
-} else {
-    const embed = new EmbedBuilder()
-        .setColor('#3498db')
-        .setAuthor({ 
-            name: "Alert!", 
-            iconURL: cmdIcons.dotIcon,
-            url: "https://discord.gg/xQF9f9yUEM"
-        })
-        .setDescription('- This command can only be used through slash command!\n- Please use `/bot`')
-        .setTimestamp();
+   
+    const giveawayHandler = require('./events/giveaway');
+    giveawayHandler(client);
+    logSystem('GIVEAWAY');
 
-    await interaction.reply({ embeds: [embed] });
-} 
-  },
+ 
+    const autoroleHandler = require('./events/autorole');
+    autoroleHandler(client);
+    logSystem('AUTOROLE');
+
+    const reactionRoleHandler = require('./events/reactionroles');
+    reactionRoleHandler(client);
+    logSystem('REACTION ROLES');
+
+    console.log(`\n${colors.magenta}${colors.bright}😀 EMOJI & AFK SYSTEMS${colors.reset}`);
+    console.log('─'.repeat(40));
+
+   
+    const nqnHandler = require('./events/nqn');
+    nqnHandler(client);
+    logSystem('NQN');
+    
+    
+    const afkHandler = require('./events/afkHandler');
+    afkHandler(client);
+    logSystem('AFK');
+
+    console.log(`\n${colors.magenta}${colors.bright}🔔 NOTIFICATION SYSTEMS${colors.reset}`);
+    console.log('─'.repeat(40));
+
+ 
+    const startYouTubeNotifications = require('./events/youTubeHandler');
+    const startTwitchNotifications = require('./events/twitchHandler');
+    const startFacebookNotifications = require('./events/facebookHandler');
+    const startInstagramNotifications = require('./events/instagramHandler');
+
+    startYouTubeNotifications(client);
+    logSystem('YOUTUBE');
+    
+    startTwitchNotifications(client);
+    logSystem('TWITCH');
+    
+    startFacebookNotifications(client);
+    logSystem('FACEBOOK');
+    
+    startInstagramNotifications(client);
+    logSystem('INSTAGRAM');
+
+  
+    console.log(`\n${colors.magenta}${colors.bright}🎵 MUSIC SYSTEM${colors.reset}`);
+    console.log('─'.repeat(40));
+    require('./events/music')(client);
+    logSystem('LAVALINK MUSIC');
+
+    require('./shiva');
+    console.log(`\n${colors.magenta}${colors.bright}🎵 DISTUBE SYSTEM${colors.reset}`);
+    require('./handlers/distube')(client);
+   
+    console.log('\n' + '═'.repeat(60));
+    console.log(`${colors.green}${colors.bright}             ✨ ALL SYSTEMS INITIALIZED ✨${colors.reset}`);
+    console.log('═'.repeat(60) + '\n');
+
+ 
+    console.log(`${colors.green}${colors.bright}Status: ${colors.reset}${colors.green}All systems operational${colors.reset}`);
+    console.log(`${colors.gray}Last checked: ${colors.reset}${colors.cyan}${new Date().toLocaleTimeString()}${colors.reset}\n`);
 };
 
-/*
-
-☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
-                                                 
-  _________ ___ ___ ._______   _________    
- /   _____//   |   \|   \   \ /   /  _  \   
- \_____  \/    ~    \   |\   Y   /  /_\  \  
- /        \    Y    /   | \     /    |    \ 
-/_______  /\___|_  /|___|  \___/\____|__  / 
-        \/       \/                     \/  
-                    
-DISCORD :  https://discord.com/invite/xQF9f9yUEM                   
-YouTube : https://www.youtube.com/@GlaceYT                         
-
-Command Verified : ✓  
-Website        : ssrr.tech  
-Test Passed    : ✓
-
-☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
-*/
+loadEventHandlers();
