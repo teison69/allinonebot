@@ -1,47 +1,89 @@
-const fs = require('fs');
-const path = require('path');
-const { REST, Routes } = require('discord.js');
+/*
 
-module.exports = async (client, config, colors) => {
-    const commandsPath = path.join(__dirname, '../commands');
-    const commandFolders = fs.readdirSync(commandsPath);
-    const enabledCommandFolders = commandFolders.filter(folder => config.categories[folder]);
+☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
+                                                 
+  _________ ___ ___ ._______   _________    
+ /   _____//   |   \|   \   \ /   /  _  \   
+ \_____  \/    ~    \   |\   Y   /  /_\  \  
+ /        \    Y    /   | \     /    |    \ 
+/_______  /\___|_  /|___|  \___/\____|__  / 
+        \/       \/                     \/  
+                    
+DISCORD :  https://discord.com/invite/xQF9f9yUEM                   
+YouTube : https://www.youtube.com/@GlaceYT                         
 
-    const commands = [];
+Command Verified : ✓  
+Website        : ssrr.tech  
+Test Passed    : ✓
 
-    for (const folder of enabledCommandFolders) {
-        const commandFiles = fs.readdirSync(path.join(commandsPath, folder)).filter(file => file.endsWith('.js'));
+☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
+*/
 
-        for (const file of commandFiles) {
-            const command = require(path.join(commandsPath, folder, file));
-            client.commands.set(command.data.name, command);
-            commands.push(command.data.toJSON());
-        }
+
+const cmdIcons = require('../../UI/icons/commandicons');
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { EmbedBuilder } = require('discord.js');
+const lang = require('../../events/loadLanguage');
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('bot')
+    .setDescription('Bot related commands.')
+    // Subcommand: ping
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('ping')
+        .setDescription(lang.pingDescription)
+    )
+  async execute(interaction) {
+    if (interaction.isCommand && interaction.isCommand()) {
+    const subcommand = interaction.options.getSubcommand();
+
+    if (subcommand === 'ping') {
+      const botLatency = Date.now() - interaction.createdTimestamp;
+      const apiLatency = interaction.client.ws.ping;
+      
+      const embed = new EmbedBuilder()
+        .setColor('#0099ff')
+        .setTitle(lang.pingTitle)
+        .setDescription(`${lang.botLatency}: ${botLatency}ms\n${lang.apiLatency}: ${apiLatency}ms`)
+        .setTimestamp();
+      
+      await interaction.reply({ embeds: [embed] });
     }
+} else {
+    const embed = new EmbedBuilder()
+        .setColor('#3498db')
+        .setAuthor({ 
+            name: "Alert!", 
+            iconURL: cmdIcons.dotIcon,
+            url: "https://discord.gg/xQF9f9yUEM"
+        })
+        .setDescription('- This command can only be used through slash command!\n- Please use `/bot`')
+        .setTimestamp();
 
-    // ✅ Register commands to Discord
-    const rest = new REST({ version: '10' }).setToken(process.env.TOKEN || config.token);
-
-    try {
-        const registeredCommands = await rest.get(
-            Routes.applicationCommands(client.user.id)
-        );
-
-        console.log('\n' + '─'.repeat(40));
-        console.log(`${colors.yellow}${colors.bright}⚡ SLASH COMMANDS${colors.reset}`);
-        console.log('─'.repeat(40));
-
-        if (registeredCommands.length !== commands.length) {
-            console.log(`${colors.red}[ LOADER ]${colors.reset} ${colors.green}Loading Slash Commands 🛠️${colors.reset}`);
-        }
-
-        await rest.put(
-            Routes.applicationCommands(client.user.id),
-            { body: commands }
-        );
-
-        console.log(`${colors.red}[ LOADER ]${colors.reset} ${colors.green}Successfully Loaded Slash Commands ✅${colors.reset}`);
-    } catch (error) {
-        console.log(`${colors.red}[ ERROR ]${colors.reset} ${colors.red}${error}${colors.reset}`);
-    }
+    await interaction.reply({ embeds: [embed] });
+} 
+  },
 };
+
+/*
+
+☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
+                                                 
+  _________ ___ ___ ._______   _________    
+ /   _____//   |   \|   \   \ /   /  _  \   
+ \_____  \/    ~    \   |\   Y   /  /_\  \  
+ /        \    Y    /   | \     /    |    \ 
+/_______  /\___|_  /|___|  \___/\____|__  / 
+        \/       \/                     \/  
+                    
+DISCORD :  https://discord.com/invite/xQF9f9yUEM                   
+YouTube : https://www.youtube.com/@GlaceYT                         
+
+Command Verified : ✓  
+Website        : ssrr.tech  
+Test Passed    : ✓
+
+☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
+*/
