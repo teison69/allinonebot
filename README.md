@@ -1,23 +1,31 @@
-const { MessageEmbed } = require('discord.js');
+const { Client, GatewayIntentBits, Events, EmbedBuilder } = require('discord.js');
 
-module.exports = {
-  name: 'ping',
-  description: 'Check bot latency',
-  execute(message) {
-    // Check if the user has admin permission
-    if (!message.member.permissions.has('ADMINISTRATOR')) {
-      return message.reply("❌ You don't have permission to use this command.");
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+client.once(Events.ClientReady, () => {
+  console.log(`Logged in as ${client.user.tag}`);
+});
+
+client.on(Events.InteractionCreate, async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+
+  if (interaction.commandName === 'ping') {
+    // Only allow administrators to use this command
+    if (!interaction.member.permissions.has('Administrator')) {
+      return interaction.reply({ content: '❌ You need admin permissions to use this command.', ephemeral: true });
     }
 
-    const botLatency = Date.now() - message.createdTimestamp;
-    const apiLatency = message.client.ws.ping;
+    const botLatency = Date.now() - interaction.createdTimestamp;
+    const apiLatency = interaction.client.ws.ping;
 
-    const embed = new MessageEmbed()
-      .setColor('#FFA500') // orange color
+    const embed = new EmbedBuilder()
+      .setColor('#FFA500')
       .setTitle('🏓 Pong!')
       .setDescription(`Bot latency: ${botLatency}ms\nAPI latency: ${apiLatency}ms`)
       .setTimestamp();
 
-    message.channel.send({ embeds: [embed] });
+    await interaction.reply({ embeds: [embed] });
   }
-};
+});
+
+client.login('YOUR_BOT_TOKEN');
